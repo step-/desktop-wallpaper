@@ -1,0 +1,622 @@
+# desktop_wallpaper 1.0.0.
+# Copyright (C) {Copyright}
+# This file is distributed under the same license as the desktop_wallpaper package.
+# {Author}
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: desktop_wallpaper 1.0.0\n"
+"Report-Msgid-Bugs-To: {E-mail}\n"
+"POT-Creation-Date: 2021-10-15 15:57+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+#. Notes for translators
+#. ---------------------
+#. This pot file was created with xgettext.sh[1] instead of xgettext.
+#. [1] https://github.com/step-/i18n-table
+#.
+#. A. Never use \n **inside** your MSGSTR. For yad and gtkdialog replace \n with \r.
+#. B. However, always **end** your MSGSTR with \n.
+#. C. Replace trailing spaces (U+0020) with non-breaking spaces (U+00A0).
+
+
+#. Example of Plural-Forms valid for English; adapt to your target language:
+#.   "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+#.
+#. =======================================================================
+#. i18n User documentation in markdown format from .md files follows.
+#. i18n IMPORTANT! Reproduce indentation and special punctuation exactly.
+#. =======================================================================
+#.
+
+#, sh-format
+msgid ""
+"Usage: ${command} [ [P,D:]IMAGE-PATH ...] | [FOLDER-PATH] | [OPTION]\n"
+"\n"
+"OPTION:\n"
+"-about                    display application information dialog and exit\n"
+"-config-file=CONFIG_FILE  read/write preferences to CONFIG_FILE\n"
+"-configure                display preferences dialog\n"
+"-create-config-file       create/update preferences, output file path and exit\n"
+"-empty-cache              delete all cached files and exit\n"
+"-h|-help                  output this help text and exit\n"
+"-play[=P,D]               play images located in the default image folder\n"
+"-play=[P,D:]FOLDER-PATH   play images located in and below FOLDER-PATH\n"
+"-play=[P,D:]PLAYLIST-PATH play images listed in file PLAYLIST-PATH\n"
+"-play-pause               pause active slideshow\n"
+"-play-resume              resume paused slideshow\n"
+"-play-status              output slideshow running status\n"
+"-play-stop                stop slideshow\n"
+"-version                  output application version and exit\n"
+msgstr ""
+
+msgid ""
+"\n"
+"IMAGE-PATH, FOLDER-PATH, PLAYLIST-PATH are full pathnames starting with \"/\".\n"
+"P,D is an optional prefix. P and D define the image placement (P) on screen\n"
+"and the delay (D) between two slideshow images; see section P,D PREFIX.\n"
+msgstr ""
+
+#, sh-format
+msgid ""
+"\n"
+"With a single IMAGE-PATH, ${command} sets the background and exits.\n"
+"With multiple IMAGE-PATHs, ${command} plays a non-interactive slideshow.\n"
+"With a single FOLDER-PATH, ${command} displays the main window in FOLDER-PATH.\n"
+"Without arguments, ${command} displays the main window over the default folder.\n"
+"File PLAYLIST-PATH lists one [P,D:]IMAGE-PATH per line.\n"
+msgstr ""
+
+msgid ""
+"\n"
+"SUPPORTED IMAGE FORMATS: BMP, GIF, JPEG, PNG, SVG, TIFF, WEBP.\n"
+msgstr ""
+
+msgid "The file name extension - not the file MIME-type - defines the image format.\n"
+msgstr ""
+
+msgid "Images are adapted to screen size according to their placement (P).\n"
+msgstr ""
+
+msgid "Image animation is not supported.\n"
+msgstr ""
+
+msgid ""
+"\n"
+"SLIDESHOW:\n"
+"Start a slideshow with either -play, -play-dir or -play-list.  Pause, resume\n"
+"and stop it with with -play-pause, play-resume and play-stop respectively.  Get\n"
+"its running or paused status with -play-status."
+msgstr ""
+
+msgid ""
+"\n"
+"With -play alone, the slideshow displays centred images with preselected delay\n"
+"and look-in directory set in the preferences dialog.  Adding the P,D PREFIX at\n"
+"the file, folder and playlist level overrides preselected values.\n"
+msgstr ""
+
+msgid ""
+"\n"
+"P,D PREFIX:\n"
+"Image placement P can be \"Centre\", \"Tile\", \"Scale\", \"Stretch\", and \"Spread\".\n"
+"Tooltips in the main window reveal definitions of placements.  Delay D is the\n"
+"number of seconds between two successive slideshow images."
+msgstr ""
+
+msgid ""
+"\n"
+"Option -play=P,D sets placement and delay for all images of the default\n"
+"slideshow. Likewise, prefix P,D sets placement and delay for all image files of\n"
+"a custom slideshow. In a playlist file, the prefix applies to the single image\n"
+"file and takes the highest precedence. You can omit D to use the default\n"
+"delay set in the preferences dialog."
+msgstr ""
+
+msgid ""
+"\n"
+"For example, \"Spread,30:/path/to/image.ext\" displays a spreaded image.ext for\n"
+"30 seconds before going to the next image or looping back to image.ext if no\n"
+"other image is in the playlist.\n"
+msgstr ""
+
+msgid ""
+"\n"
+"MAIN WINDOW:\n"
+"When the main window starts, the default placement is deduced from the current\n"
+"desktop wallpaper - falling back to \"Centre\", and the default delay is read\n"
+"from user preferences - falling back to 15. When the slideshow starts from the\n"
+"main window the look-in directory is deduced from the current subject image.\n"
+msgstr ""
+
+msgid ""
+"\n"
+"CACHE:\n"
+"The main window saves previews and scaled images in a cache folder. The folder\n"
+"can grow large for a large image collection. Use option -empty-cache to purge\n"
+"the cache from time to time and free disk space. An active slideshow does not\n"
+"cache much so you should not worry about disk space in this case.\n"
+msgstr ""
+
+#, sh-format
+msgid ""
+"\n"
+"FILES:\n"
+"${XDG_CONFIG_HOME}/desktop-wallpaper  user's configuration files\n"
+"${XDG_CACHE_HOME}/desktop-wallpaper   user's cached files\n"
+"${XDG_RUNTIME_DIR}/desktop-wallpaper  user's runtime files\n"
+msgstr ""
+
+msgid ""
+"\n"
+"ENVIRONMENT VARIABLES:\n"
+"WALLPAPER_CACHEROOT: Override default location of cached files.\n"
+"WALLPAPER_CACHE_LEVEL: 0, 1 - 0 for minimal caching (default)\n"
+"WALLPAPER_USRDIR: Override default location of configuration files.\n"
+msgstr ""
+#. RADIO BUTTONS
+#. tooltips
+#. MAIN WINDOW TITLE
+#. MENU ITEMS
+#. SUBJECT FRAME
+#. PLACEMENT FRAME
+#. ACTION FRAME
+#. buttons
+#. tooltips
+#. ABOUT WINDOW
+#. COMMAND-LINE HELP WINDOW
+#. PREFERENCES
+#. PROGRAM CHOOSER DIALOG
+#. STATUS BAR
+#. FILE INFO DIALOG
+#. EXIT DIALOG
+#. MESSAGES
+#. CLI SLIDESHOW
+
+#. i18n_centre
+msgid "Centre\n"
+msgstr ""
+
+#. i18n_tile
+msgid "Tile\n"
+msgstr ""
+
+#. i18n_scale
+msgid "Scale\n"
+msgstr ""
+
+#. i18n_fit
+msgid "Fit\n"
+msgstr ""
+
+#. i18n_stretch
+msgid "Stretch\n"
+msgstr ""
+
+#. i18n_spread
+msgid "Spread\n"
+msgstr ""
+
+#. i18n_centre_tooltip
+msgid "Display image as is, centred on the screen.\n"
+msgstr ""
+
+#. i18n_tile_tooltip
+msgid "Checkerboard effect for small images.\n"
+msgstr ""
+
+#. i18n_scale_tooltip
+msgid "Proportionally enlarge/reduce the image to fit its longer side.\n"
+msgstr ""
+
+#. i18n_fit_tooltip
+msgid "Proportionally enlarge/reduce the image to fit its shorter side.\n"
+msgstr ""
+
+#. i18n_spread_tooltip
+msgid "<b>Proportionally</b> enlarge/reduce the image to the smallest size that completely fills the screen.\n"
+msgstr ""
+
+#. i18n_stretch_tooltip
+msgid "<b>Un-proportionally</b> enlarge/reduce the image to completely fill the screen. Images reshaped this way will look distorted if the image aspect ratio does not match the screen aspect ratio.\n"
+msgstr ""
+
+#. i18n_main
+msgid "Desktop Wallpaper\n"
+msgstr ""
+
+#. i18n_slideshow
+msgid "Slideshow on/off\n"
+msgstr ""
+
+#. i18n_slideshow_tooltip
+msgid "Start/stop a slideshow. The <u>subject</u> determines the input source for the slideshow; <u>subject</u> = <b>folder</b> → the input source is the folder; <u>subject</u> = <b>file</b> → the input source is the file's folder.\n"
+msgstr ""
+
+#. i18n_options
+msgid "Edit preferences...\n"
+msgstr ""
+
+#. i18n_quit
+msgid "Quit\n"
+msgstr ""
+
+#. i18n_quit_tooltip
+msgid "Quit this application without asking for confirmation.\n"
+msgstr ""
+
+#. i18n_file
+msgid "File\n"
+msgstr ""
+
+#. i18n_edit
+msgid "Edit\n"
+msgstr ""
+
+#. i18n_view
+msgid "View\n"
+msgstr ""
+
+#. i18n_help
+msgid "Help\n"
+msgstr ""
+
+#. i18n_help_cli
+msgid "Command line\n"
+msgstr ""
+
+#. i18n_subject
+msgid "Subject\n"
+msgstr ""
+
+#. i18n_placement
+msgid "Placement\n"
+msgstr ""
+
+#. i18n_live_preview
+msgid "Preview\n"
+msgstr ""
+
+#. i18n_live_preview_tooltip
+msgid "<b>Preview</b> the <u>placement</u> of the selected <u>subject</u> image directly on your Desktop as you change the <u>subject</u>. You will need to click 'Apply' to make a change persist.\n"
+msgstr ""
+
+#. i18n_action
+msgid "Action\n"
+msgstr ""
+
+#. i18n_apply
+msgid "Apply\n"
+msgstr ""
+
+#. i18n_clear
+msgid "Clear\n"
+msgstr ""
+
+#. i18n_filer
+msgid "Filer\n"
+msgstr ""
+
+#. i18n_cancel
+msgid "Cancel\n"
+msgstr ""
+
+#. i18n_undo
+msgid "Undo\n"
+msgstr ""
+
+#. i18n_apply_tooltip
+msgid "Set the current <u>subject</u> image as your Desktop wallpaper.\n"
+msgstr ""
+
+#. i18n_clear_tooltip
+msgid "Purge cached previews. Images are cached for persistence, and are optimised for the current monitor. If you change your monitor or the background colour and images look odd try clicking the 'Clear' button then 'Apply' your wallpaper image again.\n"
+msgstr ""
+
+#. i18n_edit_tooltip
+msgid "Edit the current image <u>subject</u>.\n"
+msgstr ""
+
+#. i18n_view_tooltip
+msgid "View the current image <u>subject</u>.\n"
+msgstr ""
+
+#. i18n_filer_tooltip
+msgid "Browse the current folder.\n"
+msgstr ""
+
+#. i18n_undo_tooltip
+msgid "Undo the last Desktop wallpaper change.\n"
+msgstr ""
+
+#. i18n_about_window
+msgid "About - Desktop Wallpaper\n"
+msgstr ""
+
+#. i18n_about_text
+msgid "Screen background image chooser and slideshow player.\r\rLicense: GNU General Public License.\r\rSee file LICENSE for copyright information.\n"
+msgstr ""
+
+#. i18n_help_cli_window
+msgid "Command-line Help - Desktop Wallpaper\n"
+msgstr ""
+
+#. i18n_configuration_window
+msgid "Preferences - Desktop Wallpaper\n"
+msgstr ""
+
+#. i18n_conf_slideshow
+msgid "Slideshow\n"
+msgstr ""
+
+#. i18n_conf_slideshow_interval
+msgid "Interval\n"
+msgstr ""
+
+#. i18n_conf_slideshow_interval_tooltip
+msgid "Period in seconds between two slides.\n"
+msgstr ""
+
+#. i18n_conf_slideshow_shuffle
+msgid "Shuffle\n"
+msgstr ""
+
+#. i18n_conf_slideshow_shuffle_tooltip
+msgid "Shuffle the playlist before starting the slideshow.\n"
+msgstr ""
+
+#. i18n_conf_slideshow_slide_dir
+msgid "Slideshow:\n"
+msgstr ""
+
+#. i18n_conf_slideshow_slide_dir_tooltip
+msgid "Default look-in directory - see Help > SLIDESHOW.\n"
+msgstr ""
+
+#. i18n_conf_programs
+msgid "Default programs\n"
+msgstr ""
+
+#. i18n_conf_shuffler
+msgid "Playlist shuffler\n"
+msgstr ""
+
+#. i18n_conf_filemanager
+msgid "File manager\n"
+msgstr ""
+
+#. i18n_conf_img_editor
+msgid "Image editor\n"
+msgstr ""
+
+#. i18n_conf_img_viewer
+msgid "Image viewer\n"
+msgstr ""
+
+#. i18n_conf_images
+msgid "Images\n"
+msgstr ""
+
+#. i18n_conf_preferred_image_format
+msgid "Preferred image format\n"
+msgstr ""
+
+#. i18n_conf_preferred_image_format_tooltip
+msgid "This choice affects the time to generate subjects and wallpaper previews, disk usage, and export file format.\n"
+msgstr ""
+
+#. i18n_config_preferred_format_JPEG
+msgid "JPEG files are universal.\n"
+msgstr ""
+
+#. i18n_config_preferred_format_WEBP
+msgid "WEBP files are smaller and are generated faster.\n"
+msgstr ""
+
+#. i18n_conf_subject_image_quality
+msgid "Subject image quality\n"
+msgstr ""
+
+#. i18n_conf_wallpaper_image_quality
+msgid "Wallpaper image quality\n"
+msgstr ""
+
+#. i18n_conf_image_quality_tooltip
+msgid "Space-separated list of FILENAME_EXTENSION=INTEGER (0-100), e.g. <b>JPEG=75 WEBP=75</b>\n"
+msgstr ""
+
+#. i18n_conf_interface
+msgid "Interface\n"
+msgstr ""
+
+#. i18n_conf_colors_must_match
+msgid "For best results involving image transparency these two colours must match. Click the buttons to pick matching colours.\n"
+msgstr ""
+
+#. i18n_conf_frame_rox
+msgid "ROX-Filer's background colour\n"
+msgstr ""
+
+#. i18n_conf_frame_internal
+msgid "Subject's background colour\n"
+msgstr ""
+
+#. i18n_conf_only_rox_can_change_setting
+msgid "Only ROX-Filer can change this setting.\n"
+msgstr ""
+
+#. i18n_conf_rox_how_change_bg_color
+msgid "Open ROX, opposite-click an empty space, select Options → Pinboard → Appearance → Background...\n"
+msgstr ""
+
+#. i18n_conf_bg_color
+msgid "Background colour\n"
+msgstr ""
+
+#. i18n_conf_show_exit_dialog
+msgid "Show exit dialog\n"
+msgstr ""
+
+#. i18n_save
+msgid "Save\n"
+msgstr ""
+
+#. i18n_program_chooser_window
+msgid "Choose Program - Desktop Wallpaper\n"
+msgstr ""
+
+#. i18n_program_chooser_headers
+msgid "Program | Command\n"
+msgstr ""
+
+#. i18n_program_chooser_entry_hint
+msgid "Enter a custom command or use the folder button to select a program.\n"
+msgstr ""
+
+#. i18n_cached
+msgid "Cached\n"
+msgstr ""
+
+#. i18n_corrupt_file
+msgid "Corrupt image or unsupported format feature:\n"
+msgstr ""
+
+#. i18n_converted
+msgid "(converted)\n"
+msgstr ""
+
+#. i18n_mimetype
+msgid "MIME-type:\n"
+msgstr ""
+
+#. i18n_cur_wallpaper
+msgid "CURRENT WALLPAPER -\n"
+msgstr ""
+
+#. i18n_animated
+msgid "animated\n"
+msgstr ""
+
+#. i18n_file_info_window
+msgid "File Info - Desktop Wallpaper\n"
+msgstr ""
+
+#. i18n_click_for_file_info
+msgid "Click for file info\n"
+msgstr ""
+
+#. i18n_exiftool_not_found
+msgid "Suggested command \"exiftool\" is not installed.\n"
+msgstr ""
+
+#. i18n_preferred_image_format_fmt
+msgid "Preferred output image format: %s\n"
+msgstr ""
+
+#. i18n_subject_and_wallpaper_quality_fmt
+msgid "%s quality: %s%% (subject frame) and %s%% (screen wallpaper)\n"
+msgstr ""
+
+#. i18n_bg_color_preference_fmt
+msgid "Background color: %s\n"
+msgstr ""
+
+#. i18n_dlg_exit_title
+msgid "Exit - Desktop Wallpaper\n"
+msgstr ""
+
+#. i18n_dlg_exit_active_slideshow
+msgid "Stop the current slideshow\n"
+msgstr ""
+
+#. i18n_dlg_exit_active_slideshow_tooltip
+msgid "A slideshow is active. Check this box to stop the slideshow when this dialog will close.\n"
+msgstr ""
+
+#. i18n_dlg_exit_show_exit_dialog
+msgid "Show this exit dialog next time\n"
+msgstr ""
+
+#. i18n_dlg_exit_show_exit_dialog_tooltip
+msgid "Check this box to skip this dialog in the future. You can enable it again in the Preferences dialog.\n"
+msgstr ""
+
+#. i18n_dlg_exit_pixs_intro
+msgid "Click an image below to <b>finalise</b> your choice and <b>close</b> this window:\n"
+msgstr ""
+
+#. i18n_dlg_exit_wp
+msgid "Last applied\n"
+msgstr ""
+
+#. i18n_dlg_exit_staged
+msgid "Unapplied preview\n"
+msgstr ""
+
+#. i18n_dlg_exit_initial
+msgid "Initial wallpaper\n"
+msgstr ""
+
+#. i18n_dlg_exit_slide
+msgid "Last slide\n"
+msgstr ""
+
+#. i18n_dlg_exit_export_to_chk
+msgid "Export current wallpaper image\n"
+msgstr ""
+
+#. i18n_dlg_exit_export_to_chk_tooltip
+msgid "Export image to folder\n"
+msgstr ""
+
+#. i18n_dlg_exit_export_to_btn_tooltip
+msgid "Click to select an export folder\n"
+msgstr ""
+
+#. i18n_another_slideshow_fmt
+msgid "Another slideshow is active (%s). Stop it and start a new one?\n"
+msgstr ""
+
+#. i18n_restart_when_done
+msgid "Restart Desktop Wallpaper when you are done.\n"
+msgstr ""
+
+#. i18n_invalid_option
+msgid "invalid option:\n"
+msgstr ""
+
+#. i18n_error_no_rox_fmt
+msgid "User %s is not running ROX-Filer.\n"
+msgstr ""
+
+#. i18n_error_exclusive_lock
+msgid "Another Desktop Wallpaper dialog is running.\n"
+msgstr ""
+
+#. i18n_error_breaking_lock
+msgid "Breaking lock.\n"
+msgstr ""
+
+#. i18n_error_invalid_config_fmt
+msgid "Configuration option '%s' = '%s' is invalid. Please edit your preferences.\n"
+msgstr ""
+
+#. i18n_cli_slideshow_running_fmt
+msgid "%d running (%d)\n"
+msgstr ""
+
+#. i18n_cli_slideshow_paused_fmt
+msgid "%d paused (%d)\n"
+msgstr ""
+
+#. i18n_cli_slideshow_stopped_fmt
+msgid "%d stopped\n"
+msgstr ""

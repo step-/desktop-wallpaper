@@ -1,0 +1,131 @@
+#!/bin/bash
+
+# See file ./LICENSE for license and version information.
+
+export TEXTDOMAIN=fatdog
+export OUTPUT_CHARSET=UTF-8
+. gettext.sh
+
+usage() {
+	local command="${0##*/}"
+	eval_gettext 'Usage: ${command} [ [P,D:]IMAGE-PATH ...] | [FOLDER-PATH] | [OPTION]
+
+OPTION:
+-about                    display application information dialog and exit
+-config-file=CONFIG_FILE  read/write preferences to CONFIG_FILE
+-configure                display preferences dialog
+-create-config-file       create/update preferences, output file path and exit
+-empty-cache              delete all cached files and exit
+-h|-help                  output this help text and exit
+-play[=P,D]               play images located in the default image folder
+-play=[P,D:]FOLDER-PATH   play images located in and below FOLDER-PATH
+-play=[P,D:]PLAYLIST-PATH play images listed in file PLAYLIST-PATH
+-play-pause               pause active slideshow
+-play-resume              resume paused slideshow
+-play-status              output slideshow running status
+-play-stop                stop slideshow
+-version                  output application version and exit
+'
+	gettext '
+IMAGE-PATH, FOLDER-PATH, PLAYLIST-PATH are full pathnames starting with "/".
+P,D is an optional prefix. P and D define the image placement (P) on screen
+and the delay (D) between two slideshow images; see section P,D PREFIX.
+'
+	eval_gettext '
+With a single IMAGE-PATH, ${command} sets the background and exits.
+With multiple IMAGE-PATHs, ${command} plays a non-interactive slideshow.
+With a single FOLDER-PATH, ${command} displays the main window in FOLDER-PATH.
+Without arguments, ${command} displays the main window over the default folder.
+File PLAYLIST-PATH lists one [P,D:]IMAGE-PATH per line.
+'
+	gettext '
+SUPPORTED IMAGE FORMATS: BMP, GIF, JPEG, PNG, SVG, TIFF, WEBP.
+'
+	gettext 'The file name extension - not the file MIME-type - defines the image format.
+'
+	gettext 'Images are adapted to screen size according to their placement (P).
+'
+	gettext 'Image animation is not supported.
+'
+	gettext '
+SLIDESHOW:
+Start a slideshow with either -play, -play-dir or -play-list.  Pause, resume
+and stop it with with -play-pause, play-resume and play-stop respectively.  Get
+its running or paused status with -play-status.'
+	gettext '
+With -play alone, the slideshow displays centred images with preselected delay
+and look-in directory set in the preferences dialog.  Adding the P,D PREFIX at
+the file, folder and playlist level overrides preselected values.
+'
+	gettext '
+P,D PREFIX:
+Image placement P can be "Centre", "Tile", "Scale", "Stretch", and "Spread".
+Tooltips in the main window reveal definitions of placements.  Delay D is the
+number of seconds between two successive slideshow images.'
+	gettext '
+Option -play=P,D sets placement and delay for all images of the default
+slideshow. Likewise, prefix P,D sets placement and delay for all image files of
+a custom slideshow. In a playlist file, the prefix applies to the single image
+file and takes the highest precedence. You can omit D to use the default
+delay set in the preferences dialog.'
+	gettext '
+For example, "Spread,30:/path/to/image.ext" displays a spreaded image.ext for
+30 seconds before going to the next image or looping back to image.ext if no
+other image is in the playlist.
+'
+	gettext '
+MAIN WINDOW:
+When the main window starts, the default placement is deduced from the current
+desktop wallpaper - falling back to "Centre", and the default delay is read
+from user preferences - falling back to 15. When the slideshow starts from the
+main window the look-in directory is deduced from the current subject image.
+'
+	gettext '
+CACHE:
+The main window saves previews and scaled images in a cache folder. The folder
+can grow large for a large image collection. Use option -empty-cache to purge
+the cache from time to time and free disk space. An active slideshow does not
+cache much so you should not worry about disk space in this case.
+'
+	gettext "
+FILES:
+\${XDG_CONFIG_HOME}/desktop-wallpaper  user's configuration files
+\${XDG_CACHE_HOME}/desktop-wallpaper   user's cached files
+\${XDG_RUNTIME_DIR}/desktop-wallpaper  user's runtime files
+"
+	gettext '
+ENVIRONMENT VARIABLES:
+WALLPAPER_CACHEROOT: Override default location of cached files.
+WALLPAPER_CACHE_LEVEL: 0, 1 - 0 for minimal caching (default)
+WALLPAPER_USRDIR: Override default location of configuration files.
+'
+#####################################################################
+#  These specialized variables are supported but not shown in help  #
+#####################################################################
+
+# DEBUG: Print debug trace to stderr; set verbosity (integer) 1-3.
+# GTKDIALOG: gtkdialog command (default "gtkdialog").
+# SCALE_FILTER: Reshaping method for affected placements: point, box, triangle,
+# quadratic, cubic, catrom, mitchell, gauss, gauss sinc, bessel, hanning,
+# hamming, blackman, kaiser, normal, hermite(default), lanczos, pixel-mixing.
+# TMPDIR: Directory for temporary files (default "/tmp").
+}
+
+usage_span () {
+	echo '<span font="monospace">'
+	usage | sed -e 's/&/\x1/g; s/</\&lt;/g; s/>/\&gt;/g; s/\x1/\&amp;/g'
+	echo '</span>'
+}
+
+# unlisted options are handled directly by AppRun
+case $1 in
+	-h|-help|--help)
+		usage; exit
+		;;
+	-version)
+		cat "${0%/*}/VERSION"; exit
+		;;
+esac
+
+p="$(realpath "$0")"
+exec "${p%/*}/AppRun" "$@"

@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<AppInfo>
+ <Summary xml:lang="en">Set desktop background image and play a slideshow</Summary>
+ <About xml:lang="en">
+  <Purpose>Background images</Purpose>
+  <Version>1.0.0</Version>
+  <Author>step</Author>
+  <License>GNU General Public License version 3</License>
+  <Homepage>https://github.com/step-/desktop-wallpaper</Homepage>
+ </About>
+ <About xml:lang="it">
+  <Purpose label="Scopo">gestione immagini sfondo</Purpose>
+  <Version label="Versione"/>
+  <Author label="Autore"/>
+  <License label="Licenza"/>
+  <Homepage label="Sito web"/>
+ </About>
+ <About xml:lang="zh_CN">
+  <Purpose label="功能">背景管理</Purpose>
+  <Version label="版本"/>
+  <Author label="作者"/>
+  <License label="版权"/>
+  <Homepage label="网页"/>
+ </About>
+ <About xml:lang="zh_TW">
+  <Purpose label="功能">背景管理</Purpose>
+  <Version label="版本"/>
+  <Author label="作者"/>
+  <License label="版權"/>
+  <Homepage label="網頁"/>
+ </About>
+ <About xml:lang="hu">
+  <Purpose label="Feladat">Háttér beállítása</Purpose>
+  <Version label="Verzió"/>
+  <Author label="Szerző"/>
+  <License label="Licenc"/>
+  <Homepage label="Honlap"/>
+ </About>
+ <AppMenu>
+  <Item icon="wallpaper">
+   <Label xml:lang="en">Set desktop wallpaper</Label>
+  </Item>
+  <Item icon="wallpaper" option="-play">
+   <Label xml:lang="en">Start/stop default slideshow</Label>
+  </Item>
+  <Item icon="gtk-help" option="-help-app">
+   <Label xml:lang="en">Help</Label>
+  </Item>
+  <Item icon="gtk-about" option="-about">
+   <Label xml:lang="en">About Desktop Wallpaper</Label>
+  </Item>
+ </AppMenu>
+</AppInfo>
+<!-- vim:sw=1:
+-->

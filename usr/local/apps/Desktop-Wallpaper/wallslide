@@ -1,0 +1,107 @@
+#!/bin/bash
+
+# -----------------------------------------------
+#   This file must run in AppRun's environment.
+# -----------------------------------------------
+
+# Slide show background loop.
+
+readonly ro_max_consecutive_errors=10
+
+# source SLIDEDIR, INT and RANDOM_IMAGE settings
+source "$CONFIG_FILE"
+((DEBUG)) && dprint_varname "${BASH_SOURCE##*/}:$LINENO" INT RANDOM_IMAGE SLIDEDIR >&2
+
+# user's profile can override random slideshow parameters by exporting
+# WALLPAPER_SHUFFLER
+[ "$RANDOM_IMAGE" = "true" ] &&
+  shuffle="${SHUFFLER:-shuf}" || unset shuffle
+
+# $1 ::= | [mode[','period]':']fullpath  ; fullpath either a directory or a playlist file
+ro_mode="${1%%:/*}"; fullpath="${1#*:}"; [ "$ro_mode" != "$fullpath" ] || unset ro_mode
+ro_period="${ro_mode#*,}"; ro_mode="${ro_mode%,$ro_period}"; [ "$ro_mode" != "$ro_period" ] || unset ro_period
+readonly ro_mode ro_period
+((DEBUG)) && dprint_varname "${BASH_SOURCE##*/}:$LINENO \$1($1)" ro_mode ro_period fullpath >&2
+
+unset in_dir in_playlist
+if [ -f "$fullpath" ];     then in_playlist="$fullpath"
+elif [ -d "$fullpath" ];   then in_dir="$fullpath"
+elif [ ! -e "$fullpath" ]; then in_dir="$SLIDEDIR"
+fi
+
+# Randomize?
+command -v "${shuffle%% *}" >/dev/null 2>&1 || shuffle="cat"
+
+((DEBUG)) && dprint_varname "${BASH_SOURCE##*/}:$LINENO" in_playlist in_dir shuffle >&2
+
+# Create $playlist file
+playlist="$RUNTIME_DIR/playlist"
+if [ -n "$in_dir" ]; then
+  find -H "$in_dir" -type f |
+    grep -i -E "$__eregexp_is_supported_image" |
+    $shuffle > "$playlist"
+else
+  $shuffle "$in_playlist" > "$playlist"
+fi
+((DEBUG>1)) && dprint "${BASH_SOURCE##*/}:$LINENO" "#items($(wc -l < "$playlist"))" "shuffler($shuffle)" "playlist($playlist)" >&2
+[ -s "$playlist" ] || exit
+
+#######################################################################
+#                            LOOP FOREVER                             #
+#######################################################################
+# but bail out if too many consecutive errors or no round_impressions
+
+declare -i consecutive_errors=0 round_impressions total_impressions=0 line_index
+while : forever; do
+  round_impressions=0 line_index=0
+  while read line; do
+    line_index+=1
+
+    # skip shell-style comments and blank lines
+    [[ "$line" == \#* || "$line" =~ ^[[:blank:]*$ ]] && continue
+
+    # hold until script slideshow will release me
+    while [ -e "$RUNTIME_DIR/.holding_slideshow" ]; do sleep 10; done
+
+    unset mode period
+    case "$line" in
+      *:*) # prefix could include ",period"
+        mode="${line%%:*}"; ifp="${line#*:}"
+        period="${mode#*,}"; [ "$mode" != "$period" ] && mode="${mode%,$period}" || unset period
+        ;;
+      *) # no "mode,period" prefix
+        mode="$ro_mode" ifp="$line"
+    esac
+    if [ -z "$period" ]; then
+        # source user's preferences again in case INT was changed
+        source "$CONFIG_FILE" # => $INT
+        # INT is the default period; ro_period overrides INT
+        period="${ro_period:-${INT:-15}}"
+    fi
+
+    # -------------------------------------- #
+    # for impress_wallpaper_with_lock, AppRun SINGLE IMAGE, and impress_wallpaper
+    export WALLSLIDE_IMPRESSIONS="$total_impressions"
+    # for impress_wallpaper
+    export WALLSLIDE_INDEX="$playlist:$line_index"
+    # -------------------------------------- #
+
+    # set desktop wallpaper
+    if "$APPDIR/AppRun" "${mode:-Centre}:$ifp"
+
+    then
+      consecutive_errors=0 round_impressions+=1 total_impressions+=1
+      sleep "$period"
+    else
+      consecutive_errors+=1
+      if (( consecutive_errors > ro_max_consecutive_errors )); then
+        echo "${0##*/}: bailing out: too many errors." >&2
+        exit 1
+      fi
+    fi
+  done < "$playlist"
+
+  # abandon if the playlist didn't impress anything at all
+  ((round_impressions)) || break
+done
+

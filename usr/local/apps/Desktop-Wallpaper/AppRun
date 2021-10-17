@@ -1,0 +1,286 @@
+#!/bin/bash
+
+# See file ./LICENSE for license and version information.
+
+DEBUG=${DEBUG:-} # unset to disable debug trace to stderr; set verbosity (integer) 1-3
+export DEBUG_WITH_BASENAME="_basename" # => usage: dprint${DEBUG_WITH_BASENAME}{,_varname,_args} >&2
+
+# Export the read-only path to my folder.
+declare -x -r APPDIR="$(cd "${0%/*}"; command pwd -P)"
+
+#######################################################################
+#                                 INIT                                #
+#######################################################################
+
+shopt -s nullglob
+
+((DEBUG)) && set -ae && source "$APPDIR/sh/debug"*".sh" && set +ae
+
+if set -e; then
+  source "$APPDIR/sh/declare_constants.sh"
+  mkdir -p "$CACHEROOT" "$RUNTIME_DIR"
+  source "$APPDIR/sh/i18n_table.sh"
+
+  if set -a; then
+    source "$APPDIR/sh/cache.sh"
+    source "$APPDIR/sh/mode.sh"
+    source "$APPDIR/sh/authority_self.sh"
+    source "$APPDIR/sh/authority_rox.sh"
+    set +a
+
+    ## configuration
+    # set CONFIG_FILE and source $CONFIG_FILE
+    configuration_was_updated=
+    source "$APPDIR/sh/user_config.sh" "$@"
+    # done if option -create-config-file was specified
+    if (($configuration_was_updated)); then echo "$CONFIG_FILE"; exit; fi
+    # go on
+    export CONFIG_FILE
+    export BG_COLOR
+    export IMAGE_PIXMAP_IMAGE_QUALITY IMAGE_WPIMAGE_IMAGE_QUALITY
+
+    set -a
+    source "$APPDIR/sh/gtkdialog.sh"
+    source "$APPDIR/sh/dialog_ok_cancel.sh"
+
+    set +a
+  fi
+
+  set +e
+fi
+
+#######################################################################
+#                            INIT FOR CLI                             #
+#######################################################################
+
+# $USER's ROX-Filer must already be running so that rox --RPC and
+# ~/.icons/ROX are both available otherwise our processes would hang.
+p="$(pgrep -a -o -u $USER ROX-Filer)" &&
+  p="/${p#*/}" && p="${p%%/ROX-Filer *}" &&
+  [ -d "$p" ] && export ROX_FILER_DIR="$p" ||
+  die "$(printf "$i18n_error_no_rox_fmt" "$USER") (EROX)"
+# tsort func:die AppRun:init_cli
+
+start_bg_mode= start_bg_img= start_bg_img_origin=
+
+## I need an "authority" to tell me the current desktop wallpaper:
+# get wallpaper state from ROX-Filer, see authority_rox.sh {N0}
+case "$STATE_AUTHORITY" in
+  "rox")
+    get_rox_wallpaper_state start_bg_mode start_bg_img ;;
+  "self")
+    pull_apprun_wallpaper_state start_bg_mode start_bg_img start_bg_img_origin ;;
+esac
+[ -n "$start_bg_mode" ] || start_bg_mode=Centre
+
+# Validate the origin of the desktop wallpaper $start_bg_img.
+if [ ! -s "$start_bg_img_origin" ]; then
+  if has_cached_path "$start_bg_img"; then
+    get_cached_origin "$start_bg_img" start_bg_img_origin
+    [ -s "$start_bg_img_origin" ] ||
+      start_bg_img_origin="" # don't make up another value!
+  else
+    start_bg_img_origin="$start_bg_img"
+    # don't assume `test {-s,-e,-n} "$start_bg_img"` are true
+  fi
+fi
+
+((DEBUG)) && dprint_varname "${BASH_SOURCE##*/}:$LINENO" start_bg_mode start_bg_img start_bg_img_origin >&2
+
+# ------------------------------------------------------------ #
+
+export APPICON="$APPDIR/media/desktop_wallpaper48.png"
+read APP_NAME_VERSION < "$APPDIR/VERSION"
+export APP_NAME_VERSION="$i18n_main $APP_NAME_VERSION"
+
+
+if set -ae; then
+  source "$APPDIR/sh/stack.sh"
+  source "$APPDIR/sh/state.sh"
+  source "$APPDIR/sh/reshape_image.sh"
+  source "$APPDIR/sh/dialog_about.sh"
+  source "$APPDIR/sh/dialog_config.sh"
+  source "$APPDIR/sh/dialog_help_cli.sh"
+
+  # export screen and pixmap dimensions
+  source "$APPDIR/sh/screen.sh"
+  get_screen_dims_and_aspect_ratio SCREEN_WIDTH SCREEN_HEIGHT SCREEN_ASPECT_RATIO
+  export SCREEN_WIDTH SCREEN_HEIGHT SCREEN_ASPECT_RATIO
+  export IMAGE_PIXMAP_WIDTH=$((SCREEN_WIDTH * IMAGE_PIXMAP_HEIGHT / SCREEN_HEIGHT))
+
+  set +ae
+fi
+
+#######################################################################
+#                          PARSE CLI OPTIONS                          #
+#######################################################################
+
+while (( $# )); do
+  case "$1" in
+    # -play=[mode','period':']fullpath
+    -play=*) p="${1#*=}"; [ -e "${p#*:}" ] || p="$p:$SLIDEDIR"
+      :;          exec "$APPDIR/slideshow" -start "$p" ;;
+    -play)        exec "$APPDIR/slideshow" -start "$SLIDEDIR" ;;
+    -play-pause)  exec "$APPDIR/slideshow" -hold ;;
+    -play-resume) exec "$APPDIR/slideshow" -release ;;
+    -play-status) exec "$APPDIR/slideshow" -status ;;
+    -play-stop)   exec "$APPDIR/slideshow" -stop ;;
+
+    -about)       dialog_about; exit ;;
+    -configure)   dialog_config; exit ;;
+    -empty-cache) empty_cache; exit ;;
+
+    -config-file=*) : ;; # pre-parsed in sh/user_config.sh
+
+    -h|-help|--help) exec "$APPDIR/cli" -help ;; # to stdout
+    -help-app) # invoked by right-clicking the ROX-App icon
+      dialog_help_cli; exit ;;
+
+    --) shift; break ;;
+    -*)
+     "$APPDIR/cli" -help
+     printf "%s\n" "-----------" "$i18n_main: $i18n_invalid_option $1" >&2
+     exit 1 ;;
+    * ) break ;;
+  esac
+  shift
+done
+
+# ============================================================
+# Beyond this point we deal with impressing an image as wallpaper.
+# ============================================================
+if set -ae; then
+  for _p in "$APPDIR/sh/image/"*".sh"; do source "$_p"; done; unset _p
+  source "$APPDIR/sh/wpimage.sh"
+  source "$APPDIR/sh/impress.sh"
+  source "$APPDIR/sh/impress_backend_rox.sh"
+  source "$APPDIR/sh/impress_with_lock.sh"
+
+  # create cache folder for wallpaper files
+  get_wpimage_new -p "$APPICON" _p || true
+
+  set +ae
+  unset _p
+fi
+
+# ============================================================
+# Parse $0 FOLDER-PATH
+# ============================================================
+
+if [ -d "$1" ]; then
+  export WALLPAPER_START_DIR="$1"
+  set --
+fi
+
+# ============================================================
+# Now argument parsing breaks into three distinct cases named
+# SINGLE IMAGE, MULTI IMAGE, and GOING GUI. Pay attention.
+# ============================================================
+
+#######################################################################
+#                             SINGLE IMAGE                            #
+#######################################################################
+
+# ------------------------------------------------------------
+# Enter here when APPDIR/wallslide runs AppRun to impress a slide
+# or the command is APPDIR/cli /path/to/image/file.ext
+# ------------------------------------------------------------
+# THIS IS THE ONLY CASE THAT DOES NOT SET A STATE FILE OR STAGE POINT.
+# ------------------------------------------------------------
+
+if (( 1 == $# )); then
+   # $1 can be specified as [this-mode[','period]':']image-file-path
+   if [[ "$1" =~ $RESHAPING_METHODS_RE(,[0-9]+)?: ]]
+   then thismode="${1%:*}" ifp="${1#*:}"
+   else thismode="$start_bg_mode" ifp="$1"
+   fi
+
+   [[ "$ifp" == "/"* ]] || ifp="$PWD/$ifp"
+
+ ### Set a new wallpaper then try to remove the cached copy of the
+ # previous wallpaper.  This task takes four steps:
+ # (1) find out what is rox's current background, which could be associated to
+ #     various cached and work files that could need to be removed; {N5}
+ # (2) set the new background;
+ # (3) test if rox's background has indeed changed vs the one in step 1; {N5}
+ # (4) if so remove the work files of the previous background at #1 to keep the
+ #     slideshow from filling up $CACHEROOT with all images in the playlist.
+
+ # step (1) ------------------------------------------------------------
+ # unless we want to keep the cache around
+ cached1=
+ if (( WALLPAPER_CACHE_LEVEL == 0 && WALLSLIDE_IMPRESSIONS )); then
+     get_rox_wallpaper_state mode_before bg_before
+     ((DEBUG>2)) && dprint "${BASH_SOURCE##*/}:$LINENO" "rox before=(${mode_before:+$mode_before:}$bg_before)" >&2
+ fi
+
+ # step (2) ------------------------------------------------------------
+     # "$thismode:" allows changing mode while a slideshow is playing.
+     impress_wallpaper_with_lock "$thismode:$ifp"; set_bg_return=$?
+     # Note: "set_bg_return == 0" does not imply that the new image was
+     # actually set but it's the best approximation we can get.
+
+     # if (( 0 == set_bg_return )); then
+     #   # The new image should be set. Tidy up...
+     # fi
+
+ # step (3) ------------------------------------------------------------
+ if (( WALLPAPER_CACHE_LEVEL == 0 && WALLSLIDE_IMPRESSIONS )); then
+   if [ $set_bg_return = 0 -a -f "$bg_before" ]; then
+     # Before removing $bg_before, make sure it isn't the current $PINBOARD_FILE's background.
+     # It can be if it's the only file in the folder or if impress_wallpaper_with_lock failed.
+
+     # Wait for set_rox_backdrop to complete its RPC with rox.
+     wait_until_in_progress_impression_is_done
+
+     get_rox_wallpaper_state mode_after bg_after
+     ((DEBUG>2)) && dprint "${BASH_SOURCE##*/}:$LINENO" "rox after=(${mode_after:+$mode_after:}$bg_after)" >&2
+
+ # step (4): ------------------------------------------------------------
+     if [ "$bg_after" != "$bg_before" ]; then
+       rm_cached_file_and_siblings -- "$bg_before"
+     fi
+
+   fi
+ fi
+   exit $set_bg_return # exit 0 doesn't imply that the new bg was set
+
+#######################################################################
+#                             MULTI IMAGE                             #
+#######################################################################
+
+# ------------------------------------------------------------
+# Enter here when a slideshow is started with command
+# APPDIR/cli /path/to/image/{file1,file2}.ext ...
+# ------------------------------------------------------------
+# This case updates state files with set_apprun_slide_state via
+# impress_wallpaper.
+# ------------------------------------------------------------
+
+elif (( 1 < $# )); then
+ # slideshow from multiple image path arguments
+ "$APPDIR/slideshow" -stop
+ listf="$RUNTIME_DIR/slideshow_files"
+ printf "%s\n" "$@" > "$listf" &&
+ exec "$APPDIR/slideshow" -start-list "$listf"
+fi
+
+#######################################################################
+#                              GOING GUI                              #
+#######################################################################
+
+# ------------------------------------------------------------
+# Enter here from Control Panel or when APPRUN/cli runs with no arguments.
+# ------------------------------------------------------------
+# This case updates state files with set_apprun_wallpaper_state via
+# impress_wallpaper and the GUI, and stages and commits a stage point via GUI.
+# ------------------------------------------------------------
+
+## Run only one wallpaper dialog at the time
+{ # BEGIN LOCK
+  flock -n 13 || die "$i18n_error_exclusive_lock (ELOCK) (13)"
+
+  ## This file runs the main loop until exit
+  source "$APPDIR/sh/gui.sh" "$start_bg_mode" "$start_bg_img" "$start_bg_img_origin" "$@"
+} 13<  "$(realpath "$RUNTIME_DIR")"; exec 13<&- # END LOCK
+

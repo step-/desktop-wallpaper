@@ -1,0 +1,76 @@
+#!/bin/bash
+
+# -----------------------------------------------
+#   This file must run in AppRun's environment.
+# -----------------------------------------------
+
+readonly ro_wallslide="$APPDIR/wallslide" # fullpath
+
+hold_slideshow () { # for wallslide
+  [ -d "$RUNTIME_DIR" ] && : > "$RUNTIME_DIR/.holding_slideshow"
+}
+
+release_slideshow () { # for wallslide
+  [ -d "$RUNTIME_DIR" ] && rm -f "$RUNTIME_DIR/.holding_slideshow"
+}
+
+slideshow_is_running () {
+  pgrep -u $USER -f "bash $ro_wallslide(\$| )" # print pid(s)
+}
+
+stop_slideshow () {
+  local pid
+  for pid in $(slideshow_is_running); do
+    kill $pid 2> /dev/null
+    wait $pid 2> /dev/null
+  done
+  release_slideshow
+}
+
+yes_slideshow () {
+# prompt the user if a slideshow is running
+  local pid
+  if pid="$(slideshow_is_running)"; then
+    dialog_ok_cancel "$(printf "$i18n_another_slideshow_fmt" "$pid")" "gtk-yes~~~gtk-no"
+  fi
+}
+
+case $1 in
+  -hold)
+    hold_slideshow
+    ;;
+  -release)
+    release_slideshow
+    ;;
+  -start)
+    if yes_slideshow; then
+      stop_slideshow
+      exec "$ro_wallslide" "$2"
+    fi
+    ;;
+  -status)
+    pid="$(slideshow_is_running)"
+    if [ "$pid" -a -f "$RUNTIME_DIR/.holding_slideshow" ]; then
+      printf "$i18n_cli_slideshow_paused_fmt\n" 2 "$pid"
+    elif [ "$pid" ]; then
+      printf "$i18n_cli_slideshow_running_fmt\n" 1 "$pid"
+    else
+      printf "$i18n_cli_slideshow_stopped_fmt\n" 0
+    fi
+    ;;
+  -status-short)
+    pid=$(slideshow_is_running)
+    if [ "$pid" ]; then
+      echo 1; exit 0
+    else
+      echo 0; exit 1
+    fi
+    ;;
+  -stop)
+    stop_slideshow
+    ;;
+  *)
+    echo >&2 "${0##*/}: $i18n_invalid_option $1"
+    exit 2
+    ;;
+esac
